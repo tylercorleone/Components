@@ -30,7 +30,7 @@ inline void CappablePotentiometer::setLevel(float level) {
 }
 
 inline void CappablePotentiometer::setLevelMaxLimit(float limit) {
-	traceIfNamed("max level: %f", limit);
+	logger.trace("max level: %f", limit);
 
 	levelMaxLimit = _constrain(limit, 0.0, 1.0);
 

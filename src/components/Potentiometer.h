@@ -34,7 +34,7 @@ inline float Potentiometer::getLevel() {
 inline void Potentiometer::setLevel(float level) {
 	this->level = _constrain(level, 0.0f, 1.0f);
 	if (state == OnOffState::ON) {
-		traceIfNamed("onSetLevel(%f)", this->level);
+		logger.trace("onSetLevel(%f)", this->level);
 		onSetLevel(this->level);
 	}
 }
@@ -44,7 +44,7 @@ inline OnOffState Potentiometer::getState() {
 }
 
 inline void Potentiometer::setState(OnOffState state) {
-	debugIfNamed("onSwitch%s", state == OnOffState::ON ? "On" : "Off");
+	logger.debug("onSwitch%s", state == OnOffState::ON ? "On" : "Off");
 
 	this->state = state;
 

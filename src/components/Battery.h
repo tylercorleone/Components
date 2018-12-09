@@ -4,7 +4,8 @@
 #include "Components.h"
 
 /**
- * Battery is a component that can be inspected to "getRemainingCharge"
+ * Battery is a component that can be inspected
+ * to get the remaining charge level
  */
 class Battery : public Component {
 public:

@@ -5,12 +5,6 @@
 #define COMPONENTS_DEFAULT_LOG_LEVEL LogLevel::TRACE
 #endif
 
-#define LOGGABLE_DEFAULT_LOG_LEVEL COMPONENTS_DEFAULT_LOG_LEVEL
-
-#include "utils/fixed_trigonometry.h"
-#include "utils/simplelogger/simplelogger.h"
-#include "Enums.h"
-
 #define _constrain(value,low,high) ((value)<(low)?(low):((value)>(high)?(high):(value)))
 #define _round(x) ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
 #define _cube(x) ((x)*(x)*(x))
@@ -31,5 +25,9 @@
 #include <Arduino.h>
 #define MILLIS_PROVIDER() millis()
 #endif
+
+#include "utils/fixed_trigonometry.h"
+#include "utils/simplelogger/simplelogger.h"
+#include "Enums.h"
 
 #endif

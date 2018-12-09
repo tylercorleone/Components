@@ -62,7 +62,7 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 		ButtonEvent event = button.ackInteraction();
 
 		if (event.getClicksCount() > 0 || event.getHoldStepsCount() > 0) {
-			debugIfOtherNamed(&button, "%d clicks, %d holds",
+			button.logger.debug("%d clicks, %d holds",
 					event.getClicksCount(), event.getHoldStepsCount());
 
 			/*
@@ -100,11 +100,11 @@ inline void Button::setState(ButtonState state) {
 
 inline void Button::onButtonFall() {
 	if (state == ButtonState::PRESSED) {
-		traceIfNamed("%s filtered", "press");
+		logger.trace("%s filtered", "press");
 		return;
 	}
 
-	traceIfNamed("press");
+	logger.trace("press");
 
 	lastFallTimeMs = MILLIS_PROVIDER();
 	state = ButtonState::PRESSED;
@@ -114,11 +114,11 @@ inline void Button::onButtonFall() {
 
 inline void Button::onButtonRise() {
 	if (state == ButtonState::RELEASED) {
-		traceIfNamed("%s filtered", "release");
+		logger.trace("%s filtered", "release");
 		return;
 	}
 
-	traceIfNamed("release");
+	logger.trace("release");
 
 	lastRiseTimeMs = MILLIS_PROVIDER();
 	state = ButtonState::RELEASED;

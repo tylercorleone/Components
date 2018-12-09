@@ -8,10 +8,11 @@
 #include <stddef.h>
 #include <Task.h>
 
-class GenericDevice: public TaskManager, public Loggable {
+class GenericDevice: public TaskManager {
 public:
 	GenericDevice(AbstractState *fallbackState = nullptr);
-	GenericDevice(const char *deviceName, AbstractState *fallbackState = nullptr);
+	GenericDevice(AbstractState *fallbackState, const char *deviceName,
+			LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL);
 	void setup();
 	void enterState(AbstractState &state);
 	void enterState(AbstractState &state, const Event &event);
@@ -19,6 +20,7 @@ public:
 	virtual ~GenericDevice();
 protected:
     virtual void onSetup();
+	Logger logger {nullptr, LogLevel::OFF};
 private:
 	void enterFallbackState();
 	void enterFallbackState(const Event &event);
@@ -30,16 +32,17 @@ inline GenericDevice::GenericDevice(AbstractState *fallbackState) :
 		fallbackState(fallbackState) {
 }
 
-inline GenericDevice::GenericDevice(const char *deviceName,
-		AbstractState *fallbackState) :
-		Loggable(deviceName), fallbackState(fallbackState) {
+inline GenericDevice::GenericDevice(AbstractState *fallbackState,
+		const char *deviceName, LogLevel logLevel) :
+		fallbackState(fallbackState) {
+	logger.setName(deviceName);
+	logger.setLogLevel(logLevel);
 }
 
 inline void GenericDevice::setup() {
 	TaskManager::Setup();
 
-	debugIfNamed("onSetup");
-
+	logger.debug("onSetup");
 	onSetup();
 }
 
@@ -49,16 +52,16 @@ inline void GenericDevice::onSetup() {
 
 inline void GenericDevice::enterState(AbstractState &state) {
 	if (currentState != nullptr) {
-		debugIfOtherNamed(currentState, "onExitState");
+		currentState->logger.debug("onExitState");
 		currentState->onExitState();
 	}
 
-	debugIfOtherNamed(&state, "onEnterState");
+	currentState->logger.debug("onEnterState");
 
 	if (state.onEnterState()) {
 		currentState = &state;
 	} else {
-		warnIfOtherNamed(&state, "can't handle event");
+		currentState->logger.warn("can't handle event");
 		enterFallbackState();
 	}
 }
@@ -66,36 +69,36 @@ inline void GenericDevice::enterState(AbstractState &state) {
 inline void GenericDevice::enterState(AbstractState &state,
 		const Event &event) {
 	if (currentState != nullptr) {
-		debugIfOtherNamed(currentState, "onExitState");
+		currentState->logger.debug("onExitState");
 		currentState->onExitState();
 	}
 
 	if (state.canHandleEvent(event)) {
-		debugIfOtherNamed(&state, "onEnterState");
+		currentState->logger.debug("onEnterState");
 		if (state.onEnterStateWithGenericEvent(event)) {
 			currentState = &state;
 			return;
 		}
 	}
 
-	warnIfOtherNamed(&state, "can't handle event");
+	currentState->logger.warn("can't handle event");
 	enterFallbackState(event);
 }
 
 inline void GenericDevice::receiveEvent(const Event &event) {
 	if (currentState == nullptr) {
-		warnIfNamed("can't handle event");
+		currentState->logger.warn("can't handle event");
 	} else {
 
 		if (currentState->canHandleEvent(event)) {
-			debugIfOtherNamed(currentState, "handleEvent");
+			currentState->logger.debug("handleEvent");
 			if (currentState->handleGenericEvent(event)) {
 				return;
 			}
 		}
 
-		warnIfOtherNamed(currentState, "can't handle event");
-		debugIfOtherNamed(currentState, "onExitState");
+		currentState->logger.warn("can't handle event");
+		currentState->logger.debug("onExitState");
 		currentState->onExitState();
 
 		enterFallbackState(event);
@@ -104,18 +107,18 @@ inline void GenericDevice::receiveEvent(const Event &event) {
 
 inline void GenericDevice::enterFallbackState() {
 	if (fallbackState != nullptr) {
-		warnIfOtherNamed(fallbackState, "onEnterState");
+		fallbackState->logger.warn("onEnterState");
 		fallbackState->onEnterState();
 		currentState = fallbackState;
 	} else {
 		currentState = nullptr;
-		errorIfNamed("hanged up");
+		logger.error("hanged up");
 	}
 }
 
 inline void GenericDevice::enterFallbackState(const Event &event) {
 	if (fallbackState != nullptr) {
-		debugIfOtherNamed(fallbackState, "onEnterState");
+		fallbackState->logger.warn("onEnterState");
 		if (!(fallbackState->canHandleEvent(event)
 				&& fallbackState->onEnterStateWithGenericEvent(event))) {
 			fallbackState->onEnterState();
@@ -123,7 +126,7 @@ inline void GenericDevice::enterFallbackState(const Event &event) {
 		}
 	} else {
 		currentState = nullptr;
-		errorIfNamed("hanged up");
+		logger.error("hanged up");
 	}
 }
 
