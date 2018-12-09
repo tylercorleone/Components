@@ -11,7 +11,7 @@ public:
 private:
 	CappablePotentiometer &cappablePotentiometer;
 	float readLevel() override;
-	void writeLevel(float level);
+	void writeLevel(float level) override;
 };
 
 class GradualCappablePotentiometerActuator: public GradualPotentiometerActuator {
@@ -21,8 +21,8 @@ public:
 			CappablePotentiometer &cappablePotentiometer);
 	void setLevelMaxLimit(float level, uint32_t transitionDurationMs);
 private:
-	GradualLevelMaxLimitSetter gradualLevelMaxLimitSetter { _timeInterval,
-			taskManager, (CappablePotentiometer&) potentiometer };
+	GradualLevelMaxLimitSetter gradualLevelMaxLimitSetter {_timeInterval,
+		taskManager, (CappablePotentiometer&) potentiometer };
 };
 
 inline GradualLevelMaxLimitSetter::GradualLevelMaxLimitSetter(
@@ -48,8 +48,8 @@ inline GradualCappablePotentiometerActuator::GradualCappablePotentiometerActuato
 }
 
 inline void GradualCappablePotentiometerActuator::setLevelMaxLimit(float level,
-		uint32_t transitionDurationMs) {
-	gradualLevelMaxLimitSetter.setLevel(level, transitionDurationMs);
+		uint32_t duration) {
+	gradualLevelMaxLimitSetter.setLevel(level, duration);
 }
 
 #endif

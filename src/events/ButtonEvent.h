@@ -1,16 +1,16 @@
 #ifndef BUTTONEVENT_H
 #define BUTTONEVENT_H
 
-#include "GenericEvent.h"
+#include <events/Event.h>
 #include <stdint.h>
 
-class ButtonEvent: public GenericEvent {
+class ButtonEvent: public Event {
 public:
 	ButtonEvent(uint8_t clicksCount, uint8_t holdStepsCount);
 	uint8_t getClicksCount() const;
 	uint8_t getHoldStepsCount() const;
 	virtual const char* getEventTypeHash() const override;
-	static bool isEventInstanceOf(const GenericEvent &event);
+	static bool isEventInstanceOf(const Event &event);
 	virtual ~ButtonEvent();
 private:
 	static const char* ButtonEventTypeHash();
@@ -34,7 +34,7 @@ inline const char* ButtonEvent::getEventTypeHash() const {
 	return ButtonEvent::ButtonEventTypeHash();
 }
 
-inline bool ButtonEvent::isEventInstanceOf(const GenericEvent &event) {
+inline bool ButtonEvent::isEventInstanceOf(const Event &event) {
 	return ButtonEvent::ButtonEventTypeHash() == event.getEventTypeHash();
 }
 

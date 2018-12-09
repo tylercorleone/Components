@@ -3,6 +3,12 @@
 
 #include "Battery.h"
 
+/**
+ * Lithium batteries have a voltage/capacity function that
+ * can be approximated such a composition of two linear strokes
+ *
+ * e.g. https://lygte-info.dk/review/batteries2012/Panasonic%20NCR18650B%203400mAh%20(Green)%20UK.html
+ */
 class LithiumBattery: public Battery {
 public:
 	LithiumBattery(float voltageEmpty, float firstLinearStepEndVoltage,
@@ -12,6 +18,7 @@ public:
 	float getVoltageFull();
 	float getVoltageEmpty();
 private:
+	float (*readVoltage)(void);
 	float voltageFull;
 	float voltageEmpty;
 	float firstLinearStepEndVoltage;
@@ -21,11 +28,10 @@ private:
 inline LithiumBattery::LithiumBattery(float voltageEmpty,
 		float firstLinearStepEndVoltage, float voltageFull,
 		float firstLinearStepEndCapacity, float (*readVoltageFunc)(void)) :
-		Battery(readVoltageFunc) {
-	this->voltageFull = voltageFull;
-	this->voltageEmpty = voltageEmpty;
-	this->firstLinearStepEndVoltage = firstLinearStepEndVoltage;
-	this->firstLinearStepEndCapacity = firstLinearStepEndCapacity;
+		readVoltage(readVoltageFunc), voltageFull(voltageFull), voltageEmpty(
+				voltageEmpty), firstLinearStepEndVoltage(
+				firstLinearStepEndVoltage), firstLinearStepEndCapacity(
+				firstLinearStepEndCapacity) {
 }
 
 inline float LithiumBattery::getVoltageFull() {
@@ -52,6 +58,9 @@ inline float LithiumBattery::getRemainingCharge() const {
 				/ (firstLinearStepEndVoltage - voltageEmpty);
 	} else {
 
+		/*
+		 * high charge zone
+		 */
 		return firstLinearStepEndCapacity
 				+ (currentVoltage - firstLinearStepEndVoltage)
 						* (1.0f - firstLinearStepEndCapacity)

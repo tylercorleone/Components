@@ -1,17 +1,17 @@
 #ifndef MESSAGEEVENT_H
 #define MESSAGEEVENT_H
 
-#include "GenericEvent.h"
+#include <events/Event.h>
 #include <string.h>
 
-class MessageEvent: public GenericEvent {
+class MessageEvent: public Event {
 public:
 	MessageEvent(const char *message);
 	const char* getMessage() const;
 	bool equals(const char *message) const;
 	bool equals(const MessageEvent &event) const;
 	virtual const char* getEventTypeHash() const override;
-	static bool isEventInstanceOf(const GenericEvent &event);
+	static bool isEventInstanceOf(const Event &event);
 	virtual ~MessageEvent();
 private:
 	static const char* MessageEventTypeHash();
@@ -38,7 +38,7 @@ inline const char* MessageEvent::getEventTypeHash() const {
 	return MessageEvent::MessageEventTypeHash();
 }
 
-inline bool MessageEvent::isEventInstanceOf(const GenericEvent &event) {
+inline bool MessageEvent::isEventInstanceOf(const Event &event) {
 	return MessageEvent::MessageEventTypeHash() == event.getEventTypeHash();
 }
 

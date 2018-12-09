@@ -26,10 +26,10 @@ private:
 	Button &button;
 };
 
-class Button: public DeviceAware<GenericDevice>, public Named {
+class Button: public DeviceAware<GenericDevice>, public Component {
 	friend class ButtonInteractionMonitor;
 public:
-	Button(GenericDevice &device);
+	Button(GenericDevice &device, const char *buttonName = nullptr);
 	void setState(ButtonState state);
 protected:
 	void onButtonFall();
@@ -57,14 +57,13 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 	if (button.isUserInteracting()) {
 
 		/*
-		 * User is interacting. Stay awake to intercept holds!
+		 * User is interacting. Stay awake
 		 */
 		ButtonEvent event = button.ackInteraction();
 
 		if (event.getClicksCount() > 0 || event.getHoldStepsCount() > 0) {
-			debugIfOtherNamed(&button, "%s: %d clicks, %d holds",
-					button.getName(), event.getClicksCount(),
-					event.getHoldStepsCount());
+			debugIfOtherNamed(&button, "%d clicks, %d holds",
+					event.getClicksCount(), event.getHoldStepsCount());
 
 			/*
 			 * We have a complete interaction
@@ -74,9 +73,9 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 	} else {
 
 		/*
-		 * No interaction. No hold to intercept.
+		 * No interaction to intercept
 		 */
-		noInterrupts();
+		ENTER_ATOMIC_BLOCK;
 		if (!button.isUserInteracting()) {
 
 			/*
@@ -85,12 +84,12 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 			button.Device().StopTask(this);
 			button.reset();
 		}
-		interrupts();
+		EXIT_ATOMIC_BLOCK;
 	}
 }
 
-inline Button::Button(GenericDevice &device) :
-		DeviceAware(device) {
+inline Button::Button(GenericDevice &device, const char *buttonName) :
+		DeviceAware(device), Component(buttonName) {
 	reset();
 }
 
@@ -100,34 +99,34 @@ inline void Button::setState(ButtonState state) {
 }
 
 inline void Button::onButtonFall() {
-	traceIfNamed("onButtonFall");
-
 	if (state == ButtonState::PRESSED) {
-		traceIfNamed("%s bounce filtered", "LOW");
+		traceIfNamed("%s filtered", "press");
 		return;
 	}
 
-	lastFallTimeMs = millis();
+	traceIfNamed("press");
+
+	lastFallTimeMs = MILLIS_PROVIDER();
 	state = ButtonState::PRESSED;
 	holdsCount = 0;
 	haveHoldsToNotify = false;
 }
 
 inline void Button::onButtonRise() {
-	traceIfNamed("onButtonRise");
-
 	if (state == ButtonState::RELEASED) {
-		traceIfNamed("%s bounce filtered", "HIGH");
+		traceIfNamed("%s filtered", "release");
 		return;
 	}
 
-	lastRiseTimeMs = millis();
+	traceIfNamed("release");
+
+	lastRiseTimeMs = MILLIS_PROVIDER();
 	state = ButtonState::RELEASED;
 
 	if (lastRiseTimeMs - lastFallTimeMs >= BUTTON_HOLD_BEGIN_THRESHOLD_MS) {
 
 		/*
-		 * Exting from a hold
+		 * Exiting from a hold
 		 */
 		refreshHoldStatus(lastRiseTimeMs, true);
 	} else {
@@ -141,14 +140,14 @@ inline void Button::onButtonRise() {
 }
 
 inline ButtonEvent Button::ackInteraction() {
-	uint32_t currentMs = millis();
+	uint32_t currentMs = MILLIS_PROVIDER();
 	uint8_t clicksToNotify = 0;
 
 	if (haveClicksToNotify) {
 		if (currentMs - lastRiseTimeMs < CONSECUTIVE_CLICKS_MAX_DELAY) {
 
 			/*
-			 * There is still time to cumulate clicks, so we cannot (already) notify them
+			 * There is still time to collect clicks, so we cannot notify them yet
 			 */
 			clicksToNotify = 0;
 		} else {
@@ -183,8 +182,7 @@ inline bool Button::isUserInteracting() {
 	}
 }
 
-inline void Button::refreshHoldStatus(uint32_t millis,
-		boolean isExitingFromHold) {
+inline void Button::refreshHoldStatus(uint32_t millis, bool isExitingFromHold) {
 	if (state == ButtonState::RELEASED && !isExitingFromHold) {
 		return;
 	}

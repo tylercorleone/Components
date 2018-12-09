@@ -1,10 +1,11 @@
 #ifndef POTENTIOMETER_H
 #define POTENTIOMETER_H
 
-#include "commons/components_commons.h"
+#include "Components.h"
 
-class Potentiometer: public Named {
+class Potentiometer: public Component {
 public:
+	Potentiometer(const char *name = nullptr);
 	float getLevel();
 	virtual void setLevel(float level);
 	OnOffState getState();
@@ -12,7 +13,7 @@ public:
 	void toggleState();
 	virtual ~Potentiometer();
 protected:
-	friend class LightDimmer;
+	friend class LightnessDimmer;
 	virtual void onSetLevel(float level) = 0;
 	virtual void onSwitchOn();
 	virtual void onSwitchOff();
@@ -21,15 +22,19 @@ protected:
 	float level = -1.0f;
 };
 
+inline Potentiometer::Potentiometer(const char *name) :
+		Component(name) {
+
+}
+
 inline float Potentiometer::getLevel() {
 	return level;
 }
 
 inline void Potentiometer::setLevel(float level) {
-	traceIfNamed("setLevel(%f)", level);
-
 	this->level = _constrain(level, 0.0f, 1.0f);
 	if (state == OnOffState::ON) {
+		traceIfNamed("onSetLevel(%f)", this->level);
 		onSetLevel(this->level);
 	}
 }
@@ -39,10 +44,15 @@ inline OnOffState Potentiometer::getState() {
 }
 
 inline void Potentiometer::setState(OnOffState state) {
-	debugIfNamed("setState(%s)", state == OnOffState::ON ? "ON" : "OFF");
+	debugIfNamed("onSwitch%s", state == OnOffState::ON ? "On" : "Off");
 
 	this->state = state;
-	state == OnOffState::ON ? onSwitchOn() : onSwitchOff();
+
+	if (state == OnOffState::ON) {
+		onSwitchOn();
+	} else {
+		onSwitchOff();
+	}
 }
 
 inline void Potentiometer::toggleState() {

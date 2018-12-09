@@ -5,6 +5,7 @@
 
 class CappablePotentiometer: public Potentiometer {
 public:
+	CappablePotentiometer(const char *name = nullptr);
 	void setLevel(float level) override;
 	float getLevelMaxLimit();
 	void setLevelMaxLimit(float limit);
@@ -14,17 +15,22 @@ protected:
 	float wantedLevel = -1.0f;
 };
 
+inline CappablePotentiometer::CappablePotentiometer(const char *name) :
+		Potentiometer(name) {
+
+}
+
 inline float CappablePotentiometer::getLevelMaxLimit() {
 	return levelMaxLimit;
 }
 
 inline void CappablePotentiometer::setLevel(float level) {
 	wantedLevel = level;
-	Potentiometer::setLevel(min(wantedLevel, levelMaxLimit));
+	Potentiometer::setLevel(_min(wantedLevel, levelMaxLimit));
 }
 
 inline void CappablePotentiometer::setLevelMaxLimit(float limit) {
-	traceIfNamed("setLevelMaxLimit(%f)", limit);
+	traceIfNamed("max level: %f", limit);
 
 	levelMaxLimit = _constrain(limit, 0.0, 1.0);
 

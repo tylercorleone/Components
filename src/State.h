@@ -1,11 +1,11 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include "commons/components_commons.h"
 #include "DeviceAware.h"
-#include "commons/Named.h"
 #include "events/EventHandler.h"
 
-class AbstractState : public Named {
+class AbstractState : public Loggable {
 	friend class GenericDevice;
 	template<typename D, typename E> friend class State;
 protected:
@@ -13,10 +13,10 @@ protected:
 	virtual void onExitState() {}
 	virtual ~AbstractState() {};
 protected:
-	AbstractState(const char *stateName = nullptr) : Named(stateName) {}
-	virtual bool canHandleEvent(const GenericEvent &event) = 0;
-	virtual bool handleGenericEvent(const GenericEvent &event) = 0;
-	virtual bool onEnterStateWithGenericEvent(const GenericEvent &event) = 0;
+	AbstractState(const char *stateName = nullptr) : Loggable(stateName) {}
+	virtual bool canHandleEvent(const Event &event) = 0;
+	virtual bool handleGenericEvent(const Event &event) = 0;
+	virtual bool onEnterStateWithGenericEvent(const Event &event) = 0;
 };
 
 template<typename D, typename E> class State : public AbstractState, public DeviceAware<D>, public EventHandler<E> {
@@ -28,15 +28,15 @@ protected:
 	virtual ~State() {};
 protected:
 
-	bool canHandleEvent(const GenericEvent &event) override {
+	bool canHandleEvent(const Event &event) override {
 		return EventHandler<E>::EventHandler::canHandleEvent(event);
 	}
 
-	bool handleGenericEvent(const GenericEvent &event) override {
+	bool handleGenericEvent(const Event &event) override {
 		return handleEvent(static_cast<const E&>(event));
 	}
 
-	bool onEnterStateWithGenericEvent(const GenericEvent &event) override {
+	bool onEnterStateWithGenericEvent(const Event &event) override {
 		return onEnterState(static_cast<const E&>(event));
 	}
 };
