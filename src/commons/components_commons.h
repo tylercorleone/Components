@@ -26,6 +26,12 @@
 #define MILLIS_PROVIDER() millis()
 #endif
 
+#ifndef DEBUG_ENTERING_IDLE_STATE
+/* define DEBUG_ENTERING_IDLE_STATE if you want to be alerted
+ * when entering an idle loop state (onIdle)
+ */
+#endif
+
 #include "utils/fixed_trigonometry.h"
 #include "utils/simplelogger/simplelogger.h"
 #include "Enums.h"

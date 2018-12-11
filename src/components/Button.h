@@ -81,7 +81,7 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 			/*
 			 * Double check
 			 */
-			button.Device().StopTask(this);
+			button.Device().getTaskManager().StopTask(this);
 			button.reset();
 		}
 		EXIT_ATOMIC_BLOCK;
@@ -95,7 +95,7 @@ inline Button::Button(GenericDevice &device, const char *buttonName) :
 
 inline void Button::setState(ButtonState state) {
 	state == ButtonState::PRESSED ? onButtonFall() : onButtonRise();
-	Device().StartTask(&uiMonitor);
+	Device().getTaskManager().StartTask(&uiMonitor);
 }
 
 inline void Button::onButtonFall() {

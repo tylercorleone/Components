@@ -8,18 +8,23 @@
 #include <stddef.h>
 #include <Task.h>
 
-class GenericDevice: public TaskManager {
+class GenericDevice {
 public:
 	GenericDevice(AbstractState *fallbackState = nullptr);
 	GenericDevice(AbstractState *fallbackState, const char *deviceName,
 			LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL);
+
 	void setup();
+	void loop(uint16_t watchdogTimeOutFlag = WDTO_500MS);
+	TaskManager& getTaskManager();
 	void enterState(AbstractState &state);
 	void enterState(AbstractState &state, const Event &event);
 	void receiveEvent(const Event &event);
 	virtual ~GenericDevice();
 protected:
     virtual void onSetup();
+    virtual void onIdle();
+    TaskManager taskManager;
 	Logger logger {nullptr, LogLevel::OFF};
 private:
 	void enterFallbackState();
@@ -40,8 +45,7 @@ inline GenericDevice::GenericDevice(AbstractState *fallbackState,
 }
 
 inline void GenericDevice::setup() {
-	TaskManager::Setup();
-
+	taskManager.Setup();
 	logger.debug("onSetup");
 	onSetup();
 }
@@ -50,18 +54,36 @@ inline void GenericDevice::onSetup() {
 
 }
 
+inline void GenericDevice::loop(uint16_t watchdogTimeOutFlag) {
+	taskManager.Loop(watchdogTimeOutFlag);
+
+	if (taskManager.IsIdle()) {
+#ifdef DEBUG_ENTERING_IDLE_STATE
+		logger.debug("onIdle");
+#endif
+		onIdle();
+	}
+}
+
+inline void GenericDevice::onIdle() {
+
+}
+
+inline TaskManager& GenericDevice::getTaskManager() {
+	return taskManager;
+}
+
 inline void GenericDevice::enterState(AbstractState &state) {
 	if (currentState != nullptr) {
 		currentState->logger.debug("onExitState");
 		currentState->onExitState();
 	}
 
-	currentState->logger.debug("onEnterState");
-
+	state.logger.debug("onEnterState");
 	if (state.onEnterState()) {
 		currentState = &state;
 	} else {
-		currentState->logger.warn("can't handle event");
+		state.logger.warn("can't handle event");
 		enterFallbackState();
 	}
 }
@@ -74,35 +96,35 @@ inline void GenericDevice::enterState(AbstractState &state,
 	}
 
 	if (state.canHandleEvent(event)) {
-		currentState->logger.debug("onEnterState");
+		state.logger.debug("onEnterState");
 		if (state.onEnterStateWithGenericEvent(event)) {
 			currentState = &state;
 			return;
 		}
 	}
 
-	currentState->logger.warn("can't handle event");
+	state.logger.warn("can't handle event");
 	enterFallbackState(event);
 }
 
 inline void GenericDevice::receiveEvent(const Event &event) {
 	if (currentState == nullptr) {
 		currentState->logger.warn("can't handle event");
-	} else {
-
-		if (currentState->canHandleEvent(event)) {
-			currentState->logger.debug("handleEvent");
-			if (currentState->handleGenericEvent(event)) {
-				return;
-			}
-		}
-
-		currentState->logger.warn("can't handle event");
-		currentState->logger.debug("onExitState");
-		currentState->onExitState();
-
-		enterFallbackState(event);
+		return;
 	}
+
+	if (currentState->canHandleEvent(event)) {
+		currentState->logger.debug("handleEvent");
+		if (currentState->handleGenericEvent(event)) {
+			return;
+		}
+	}
+
+	currentState->logger.warn("can't handle event");
+	currentState->logger.debug("onExitState");
+	currentState->onExitState();
+
+	enterFallbackState(event);
 }
 
 inline void GenericDevice::enterFallbackState() {
