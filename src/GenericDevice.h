@@ -109,7 +109,7 @@ inline void GenericDevice::enterState(AbstractState &state,
 
 inline void GenericDevice::receiveEvent(const Event &event) {
 	if (currentState == nullptr) {
-		currentState->logger.warn("can't handle event");
+		logger.warn("can't handle event");
 		return;
 	}
 
