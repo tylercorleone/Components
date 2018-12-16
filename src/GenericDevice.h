@@ -83,7 +83,6 @@ inline void GenericDevice::enterState(AbstractState &state) {
 	if (state.onEnterState()) {
 		currentState = &state;
 	} else {
-		state.logger.warn("can't handle event");
 		enterFallbackState();
 	}
 }

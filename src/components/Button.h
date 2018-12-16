@@ -7,9 +7,31 @@
 #include <stddef.h>
 #include <Task.h>
 
+#ifndef BUTTON_MONITOR_TIME_INTERVAL_MS
+#define BUTTON_MONITOR_TIME_INTERVAL_MS 10
+#endif
+
+#define SPEED_FAST 3
+#define SPEED_NORMAL 2
+#define SPEED_SLOW 1
+
+#ifndef BUTTON_INTERACTION_SPEED
+#define BUTTON_INTERACTION_SPEED SPEED_NORMAL
+#endif
+
+#if BUTTON_INTERACTION_SPEED == SPEED_FAST
+#define CONSECUTIVE_CLICKS_MAX_DELAY 450L
+#define BUTTON_HOLD_BEGIN_THRESHOLD_MS 600L
+#define HOLD_CYCLE_DURATION_MS 900UL
+#elif BUTTON_INTERACTION_SPEED == SPEED_NORMAL
 #define CONSECUTIVE_CLICKS_MAX_DELAY 600L
 #define BUTTON_HOLD_BEGIN_THRESHOLD_MS 800L
 #define HOLD_CYCLE_DURATION_MS 1200UL
+#elif BUTTON_INTERACTION_SPEED == SPEED_SLOW
+#define CONSECUTIVE_CLICKS_MAX_DELAY 750L
+#define BUTTON_HOLD_BEGIN_THRESHOLD_MS 1000L
+#define HOLD_CYCLE_DURATION_MS 1500UL
+#endif
 
 class Button;
 
@@ -45,7 +67,8 @@ protected:
 	volatile uint8_t holdsCount;
 	volatile bool haveClicksToNotify;
 	volatile bool haveHoldsToNotify;
-	ButtonInteractionMonitor uiMonitor { *this , MsToTaskTime(10)};
+	ButtonInteractionMonitor uiMonitor { *this, MsToTaskTime(
+			BUTTON_MONITOR_TIME_INTERVAL_MS) };
 };
 
 inline ButtonInteractionMonitor::ButtonInteractionMonitor(Button &button,
@@ -175,11 +198,8 @@ inline ButtonEvent Button::ackInteraction() {
  * Used to keep alive the user interaction monitor
  */
 inline bool Button::isUserInteracting() {
-	if (state == ButtonState::PRESSED) {
-		return true;
-	} else {
-		return haveClicksToNotify || haveHoldsToNotify;
-	}
+	return state == ButtonState::PRESSED || haveClicksToNotify
+			|| haveHoldsToNotify;
 }
 
 inline void Button::refreshHoldStatus(uint32_t millis, bool isExitingFromHold) {

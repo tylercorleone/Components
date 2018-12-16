@@ -13,7 +13,6 @@ public:
 	void toggleState();
 	virtual ~Potentiometer();
 protected:
-	friend class LightnessDimmer;
 	virtual void onSetLevel(float level) = 0;
 	virtual void onSwitchOn();
 	virtual void onSwitchOff();

@@ -117,7 +117,7 @@ inline void Logger::log(LogLevel logLevel, const char *name, const char *fmt,
 }
 
 inline const char* Logger::getLogLevelDescr(LogLevel level) {
-//#ifdef LOG_ENABLED
+#ifdef LOG_ENABLED
 	switch (level) {
 	case LogLevel::TRACE:
 		return "TRACE";
@@ -130,9 +130,9 @@ inline const char* Logger::getLogLevelDescr(LogLevel level) {
 	default:
 		return "ERROR";
 	}
-//#else
-//	return nullptr;
-//#endif // LOG_ENABLED
+#else
+	return "";
+#endif // LOG_ENABLED
 }
 
 #endif

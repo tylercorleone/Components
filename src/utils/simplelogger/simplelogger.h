@@ -84,9 +84,9 @@ inline void printDate(uint32_t millis) {
 }
 
 inline void printFirstNCharacters(const char *str, uint16_t n) {
-	static char buffer[LOG_BUFFER_SIZE];
+	static char buffer[LOG_SUBSTRING_BUFFER_SIZE + 1];
 
-	uint16_t charsCount = n < (LOG_SUBSTRING_BUFFER_SIZE - 1) ? n : (LOG_SUBSTRING_BUFFER_SIZE - 1);
+	uint16_t charsCount = n < LOG_SUBSTRING_BUFFER_SIZE ? n : LOG_SUBSTRING_BUFFER_SIZE;
 	strncpy(buffer, str, charsCount);
 	buffer[charsCount] = '\0';
 	LOG_APPENDER(buffer);
