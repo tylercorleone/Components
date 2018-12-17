@@ -23,5 +23,6 @@ protected:
 #include "components/LightnessDimmer.h"
 #include "components/LithiumBattery.h"
 #include "components/Potentiometer.h"
+#include "components/SignalGenerator.h"
 
 #endif
