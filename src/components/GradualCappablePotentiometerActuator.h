@@ -19,7 +19,7 @@ public:
 	GradualCappablePotentiometerActuator(uint32_t timeInterval,
 			TaskManager &taskManager,
 			CappablePotentiometer &cappablePotentiometer);
-	void setLevelMaxLimit(float level, uint32_t transitionDurationMs);
+	void setLevelMaxLimit(float level, uint32_t duration);
 private:
 	GradualLevelMaxLimitSetter gradualLevelMaxLimitSetter {_timeInterval,
 		taskManager, (CappablePotentiometer&) potentiometer };
@@ -49,6 +49,8 @@ inline GradualCappablePotentiometerActuator::GradualCappablePotentiometerActuato
 
 inline void GradualCappablePotentiometerActuator::setLevelMaxLimit(float level,
 		uint32_t duration) {
+	logger.debug("setLevelMaxLimit(%f, %u)", level, duration);
+
 	gradualLevelMaxLimitSetter.setLevel(level, duration);
 }
 

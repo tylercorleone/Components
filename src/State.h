@@ -47,7 +47,6 @@ protected:
 	virtual bool onEnterState() {return false;}
 	virtual bool onEnterState(const E &event) {return false;}
 	virtual void onExitState() {}
-	virtual ~State() {};
 private:
 	bool canHandleEvent(const Event &event) override;
 	bool handleGenericEvent(const Event &event) override;

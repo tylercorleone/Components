@@ -9,10 +9,9 @@ public:
 	void setLevel(float level) override;
 	float getLevelMaxLimit();
 	void setLevelMaxLimit(float limit);
-	virtual ~CappablePotentiometer();
 protected:
 	float levelMaxLimit = 1.0f;
-	float wantedLevel = -1.0f;
+	float wantedLevel = 0.0f;
 };
 
 inline CappablePotentiometer::CappablePotentiometer(const char *name) :
@@ -41,10 +40,6 @@ inline void CappablePotentiometer::setLevelMaxLimit(float limit) {
 		 */
 		setLevel(wantedLevel);
 	}
-}
-
-inline CappablePotentiometer::~CappablePotentiometer() {
-
 }
 
 #endif

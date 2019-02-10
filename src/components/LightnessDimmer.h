@@ -23,7 +23,6 @@ public:
 	virtual void setLevel(float level) override;
 	bool isLightnessSimulationEnabled();
 	void isLightnessSimulationEnabled(bool);
-	virtual ~LightnessDimmer();
 protected:
 	void onSetLevel(float level) override;
 	void onSwitchOn() override;
@@ -66,15 +65,16 @@ inline void LightnessDimmer::onSwitchOff() {
 	brightnessPotentiometer.setState(OnOffState::OFF);
 }
 
-inline LightnessDimmer::~LightnessDimmer() {
-
-}
-
 /**
  * @see https://en.wikipedia.org/wiki/CIELAB_color_space
  */
 inline float cieLabConversion(float lightness) {
-	return (lightness) > 0.08f ? _cube(((lightness) + 0.16f) / 1.16f) : (0.11071f * (lightness));
+	if (lightness > 0.08f) {
+		float x = (lightness + 0.16f) / 1.16f;
+		return _cube(x);
+	} else {
+		return 0.11071f * lightness;
+	}
 }
 
 /**
