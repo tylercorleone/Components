@@ -3,8 +3,6 @@
 
 #include "Components.h"
 
-float NOT_INITIALIZED_POTENTIOMETER_LEVEL = -123.45f;
-
 class Potentiometer : public Component {
 public:
     inline Potentiometer(const char *name = nullptr,
@@ -32,7 +30,7 @@ protected:
     virtual void onSwitchOff();
 
     OnOffState currentState = OnOffState::OFF;
-    float currentLevel = NOT_INITIALIZED_POTENTIOMETER_LEVEL;
+    float currentLevel = 0.0f;
 };
 
 inline void Potentiometer::setLevel(float level) {
@@ -44,20 +42,17 @@ inline void Potentiometer::setLevel(float level) {
         onSetLevel(this->currentLevel); // trigger the actual level change
     }
 }
+
 inline void Potentiometer::setState(OnOffState state) {
-    if (state == currentState) {
-        logger.debug("already %s", currentState == OnOffState::ON ? "ON" : "OFF");
-        return;
-    }
+    currentState = OnOffState::ON; // this will enable actual level set, needed to switch either ON or OFF
 
     if (state == OnOffState::ON) {
         logger.debug("switching ON");
-        currentState = OnOffState::ON; // nested logic relies on current state being ON
         onSwitchOn();
     } else {
         logger.debug("switching OFF");
         onSwitchOff();
-        currentState = OnOffState::OFF; // changed after because nested logic relies on current state being ON
+        currentState = OnOffState::OFF;
     }
 }
 

@@ -142,16 +142,17 @@ inline void Logger::trace(const char *fmt, ...) {
 
 inline void Logger::log(LogLevel logLevel, const char *name, const char *fmt,
                         va_list argv) {
-    LOG_APPENDER(getLogLevelDescr(logLevel));
-    LOG_APPENDER(": (");
     printDate(millis());
+    LOG_APPENDER(" [");
+    LOG_APPENDER(getLogLevelDescr(logLevel));
+    LOG_APPENDER("]");
 
     if (name != nullptr) {
-        LOG_APPENDER("|");
+        LOG_APPENDER(" ");
         LOG_APPENDER(name);
     }
 
-    LOG_APPENDER(") ");
+    LOG_APPENDER(" - ");
 
     aprintf(fmt, argv);
 

@@ -11,80 +11,73 @@ public:
 
     void setLevel(float level) override;
 
-    float getLevelMaxValue();
+    float getMinValue();
 
-    void updateLevelMaxValue(float limit);
+    void setMinValue(float limit);
 
-    float getLevelMinValue();
+    float getMaxValue();
 
-    void updateLevelMinValue(float limit);
+    void setMaxValue(float limit);
 
 protected:
-    float levelMaxValue = 1.0f;
-    float levelMinValue = 0.0f;
-    float currentWantedLevel = 0.0f;
+    float maxValue = 1.0f;
+    float minValue = 0.0f;
+    float wantedLevel = 0.0f;
 };
 
-inline void CappablePotentiometer::setLevel(float wantedLevel) {
-    currentWantedLevel = wantedLevel;
+inline void CappablePotentiometer::setLevel(float level) {
+    wantedLevel = level;
 
-    float actuableLevel;
-    if (wantedLevel > levelMaxValue) {
-        actuableLevel = levelMaxValue;
-    } else if (wantedLevel < levelMinValue) {
-        actuableLevel = levelMinValue;
-    } else {
-        actuableLevel = wantedLevel;
+    float newLevel = _constrain(level, minValue, maxValue);
+
+    if (newLevel != wantedLevel) {
+        logger.debug("limiting level %f to %f", wantedLevel, newLevel);
     }
 
-    if (actuableLevel != wantedLevel) {
-        logger.debug("capping level %f to %f", wantedLevel, actuableLevel);
-    }
-    
-    Potentiometer::setLevel(actuableLevel);
+    Potentiometer::setLevel(newLevel);
 }
 
-inline float CappablePotentiometer::getLevelMaxValue() {
-    return levelMaxValue;
+inline float CappablePotentiometer::getMaxValue() {
+    return maxValue;
 }
 
-inline void CappablePotentiometer::updateLevelMaxValue(float value) {
-    float newValue = _constrain(value, levelMinValue, 1.0f);
+inline void CappablePotentiometer::setMaxValue(float value) {
+    float newValue = _constrain(value, minValue, 1.0f);
 
-    if (newValue == levelMaxValue) return;
+    if (newValue == maxValue) return;
 
-    levelMaxValue = newValue;
+    maxValue = newValue;
 
-    logger.debug("max value updated to %f", levelMaxValue);
+    logger.debug("new max value %f", maxValue);
 
-    if (currentLevel > levelMaxValue || (currentLevel < currentWantedLevel && currentLevel < levelMaxValue)) {
+    if (currentLevel > maxValue || (currentLevel < wantedLevel && currentLevel < maxValue)) {
 
         /*
          * level is higher than max permitted || level is lower than expected && we have room to increase it
          */
-        setLevel(currentWantedLevel);
+        setLevel(wantedLevel);
     }
 }
 
-inline float CappablePotentiometer::getLevelMinValue() {
-    return levelMinValue;
+inline float CappablePotentiometer::getMinValue() {
+    return minValue;
 }
 
-inline void CappablePotentiometer::updateLevelMinValue(float value) {
-    float newValue = _constrain(value, 0.0f, levelMaxValue);
+inline void CappablePotentiometer::setMinValue(float value) {
+    float newValue = _constrain(value, 0.0f, maxValue);
 
-    if (newValue == levelMinValue) return;
+    if (newValue == minValue) return;
 
-    levelMinValue = newValue;
+    minValue = newValue;
 
-    logger.debug("min level updated to %f", levelMinValue);
+    logger.debug("min level updated to %f", minValue);
 
-    if (currentLevel < levelMinValue || (currentLevel > currentWantedLevel && currentLevel > levelMinValue)) {
+    if (currentLevel < minValue || (currentLevel > wantedLevel && currentLevel > minValue)) {
 
         /*
          * level is lower than min permitted || level is higher than expected && we have room to decrease it
          */
-        setLevel(currentWantedLevel);
+        setLevel(wantedLevel);
     }
 }
 

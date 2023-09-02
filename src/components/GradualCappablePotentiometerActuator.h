@@ -30,13 +30,11 @@ inline GradualLevelMaxValueSetter::GradualLevelMaxValueSetter(uint32_t timeInter
 }
 
 inline float GradualLevelMaxValueSetter::readLevel() {
-    return cappablePotentiometer.getLevelMaxValue();
+    return cappablePotentiometer.getMaxValue();
 }
 
 inline void GradualLevelMaxValueSetter::writeLevel(float level) {
-    if (level != cappablePotentiometer.getLevelMaxValue()) {
-        cappablePotentiometer.updateLevelMaxValue(level);
-    }
+    cappablePotentiometer.setMaxValue(level);
 }
 
 /**
@@ -50,26 +48,25 @@ public:
                                          const char *name = nullptr,
                                          LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL);
 
-    void updateLevelMaxValue(float level, uint32_t duration);
+    void setMaxValueGradually(float level, uint32_t duration);
 
 private:
-    GradualLevelMaxValueSetter gradualLevelMaxValueSetter{_timeInterval,
-                                                          taskManager, (CappablePotentiometer &) potentiometer};
+    GradualLevelMaxValueSetter gradualLevelMaxValueSetter;
 };
 
-inline GradualCappablePotentiometerActuator::GradualCappablePotentiometerActuator(
-        uint32_t timeInterval,
-        TaskManager &taskManager,
-        CappablePotentiometer &cappablePotentiometer,
-        const char *name,
-        LogLevel logLevel) :
-        GradualPotentiometerActuator(timeInterval, taskManager, cappablePotentiometer, name, logLevel) {}
+inline GradualCappablePotentiometerActuator::GradualCappablePotentiometerActuator(uint32_t timeInterval,
+                                                                                  TaskManager &taskManager,
+                                                                                  CappablePotentiometer &cappablePotentiometer,
+                                                                                  const char *name,
+                                                                                  LogLevel logLevel) :
+        GradualPotentiometerActuator(timeInterval, taskManager, cappablePotentiometer, name, logLevel),
+        gradualLevelMaxValueSetter(timeInterval, taskManager, cappablePotentiometer, name, logLevel) {}
 
-inline void GradualCappablePotentiometerActuator::updateLevelMaxValue(float level,
+inline void GradualCappablePotentiometerActuator::setMaxValueGradually(float level,
                                                                       uint32_t duration) {
-    logger.debug("setting max to %f in %u ms", level, duration);
+    logger.debug("setting %s's max to %f in %u ms", potentiometer.getIdentifier(), level, duration);
 
-    gradualLevelMaxValueSetter.setLevel(level, duration);
+    gradualLevelMaxValueSetter.setLevelGradually(level, duration);
 }
 
 #endif

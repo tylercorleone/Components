@@ -13,7 +13,7 @@ public:
             Task(timeInterval),
             taskManager(taskManager) {}
 
-    void setLevel(float level, uint32_t transitionDurationMs);
+    void setLevelGradually(float level, uint32_t transitionDurationMs);
 
     virtual ~GradualLevelSetter() {}
 
@@ -30,8 +30,8 @@ private:
     uint32_t stepsToGo = 0;
 };
 
-inline void GradualLevelSetter::setLevel(float level, uint32_t duration) {
-    logger.debug("setLevel(%f, %u)", level, duration);
+inline void GradualLevelSetter::setLevelGradually(float level, uint32_t duration) {
+    logger.debug("setting level %f in %u ms", level, duration);
 
     taskManager.StopTask(this);
 

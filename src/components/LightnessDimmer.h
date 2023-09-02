@@ -42,8 +42,8 @@ protected:
 };
 
 inline void LightnessDimmer::onSetLevel(float level) {
-    float brightnessPotLevel = lightnessSimulationEnabled ? LIGHTNESS_TO_BRIGHTNESS_CONVERSION(level) : level;
-    brightnessPotentiometer.setLevel(brightnessPotLevel);
+    float brightnessLevel = lightnessSimulationEnabled ? LIGHTNESS_TO_BRIGHTNESS_CONVERSION(level) : level;
+    brightnessPotentiometer.setLevel(brightnessLevel);
 }
 
 inline bool LightnessDimmer::isLightnessSimulationEnabled() {
@@ -55,10 +55,12 @@ inline void LightnessDimmer::isLightnessSimulationEnabled(bool isEnabled) {
 }
 
 inline void LightnessDimmer::onSwitchOn() {
+    Potentiometer::onSwitchOn();
     brightnessPotentiometer.setState(OnOffState::ON);
 }
 
 inline void LightnessDimmer::onSwitchOff() {
+    Potentiometer::onSwitchOff(); // important to set lightness to 0
     brightnessPotentiometer.setState(OnOffState::OFF);
 }
 
