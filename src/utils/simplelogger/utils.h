@@ -1,56 +1,11 @@
-#ifndef SIMPLELOGGER_H
-#define SIMPLELOGGER_H
-
-#define OFF_LEVEL 6
-#define ERROR_LEVEL 5
-#define WARNING_LEVEL 4
-#define INFO_LEVEL 3
-#define DEBUG_LEVEL 2
-#define TRACE_LEVEL 1
-
-#ifndef LOG_LEVEL
-/*
- * The default minimum log level configurable at preprocessor time
- * Changing this value will condition the program and data size of
- * your executable e.g. if it contains "logger.trace("Hello world")
- * and LOG_LEVEL is set to a level > TRACE_LEVEL
- */
-#define LOG_LEVEL TRACE_LEVEL
-#endif
-
-#if LOG_LEVEL < OFF_LEVEL
-/*
- * You can use this macro to check if log is enabled or not
- * e.g. to setup an appender Serial.begin(...) etc.
- */
-#define LOG_ENABLED
-#endif
-
-/*
- * Note that the can be longer than LOG_SUBSTRING_BUFFER_SIZE
- * The buffer is only used to print the substring contained
- * between a %x token and the previous one (or begin of the string)
- */
-#ifndef LOG_SUBSTRING_BUFFER_SIZE
-#define LOG_SUBSTRING_BUFFER_SIZE 50
-#endif
-
-
-#ifdef LOG_ENABLED
+#include <Arduino.h>
 
 #ifndef LOG_APPENDER
-#include <Arduino.h>
 #define LOG_APPENDER Serial.print
 #endif
 
 #ifndef LOG_FLUSHER
-#include <Arduino.h>
 #define LOG_FLUSHER Serial.flush
-#endif
-
-#ifndef MILLIS_PROVIDER
-#include <Arduino.h>
-#define MILLIS_PROVIDER millis
 #endif
 
 void printDate(uint32_t millis);
@@ -136,8 +91,6 @@ inline void aprintf(const char *str, va_list argv) {
 	}
 }
 
-#endif // LOG_ENABLED
-
 #define LOG_AT_LEVEL(level) 		\
 	if (logLevel > level) {			\
 		return;						\
@@ -146,9 +99,3 @@ inline void aprintf(const char *str, va_list argv) {
 	va_start(argv, fmt);			\
 	log(level, name, fmt, argv);	\
 	va_end(argv);
-
-#include "Logger.h"
-
-#undef LOG_AT_LEVEL
-
-#endif

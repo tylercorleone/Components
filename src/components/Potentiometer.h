@@ -3,71 +3,74 @@
 
 #include "Components.h"
 
-class Potentiometer: public Component {
-public:
-	Potentiometer(const char *name = nullptr);
-	float getLevel();
-	virtual void setLevel(float level);
-	OnOffState getState();
-	void setState(OnOffState state);
-	void toggleState();
-	virtual ~Potentiometer();
-protected:
-	virtual void onSetLevel(float level) = 0;
-	virtual void onSwitchOn();
-	virtual void onSwitchOff();
+float NOT_INITIALIZED_POTENTIOMETER_LEVEL = -123.45f;
 
-	OnOffState state = OnOffState::OFF;
-	float level = -1.0f;
+class Potentiometer : public Component {
+public:
+    inline Potentiometer(const char *name = nullptr,
+                         LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
+            Component(name, logLevel) {
+    }
+
+    float getLevel() { return currentLevel; }
+
+    virtual void setLevel(float level);
+
+    OnOffState getState() { return currentState; }
+
+    void setState(OnOffState state);
+
+    void toggleState();
+
+    virtual ~Potentiometer() {}
+
+protected:
+    virtual void onSetLevel(float desiredLevel) = 0;
+
+    virtual void onSwitchOn();
+
+    virtual void onSwitchOff();
+
+    OnOffState currentState = OnOffState::OFF;
+    float currentLevel = NOT_INITIALIZED_POTENTIOMETER_LEVEL;
 };
 
-inline Potentiometer::Potentiometer(const char *name) :
-		Component(name) {
-
-}
-
-inline float Potentiometer::getLevel() {
-	return level;
-}
-
 inline void Potentiometer::setLevel(float level) {
-	this->level = _constrain(level, 0.0f, 1.0f);
-	if (state == OnOffState::ON) {
-		logger.trace("onSetLevel(%f)", this->level);
-		onSetLevel(this->level);
-	}
-}
+    this->currentLevel = _constrain(level, 0.0f, 1.0f);
 
-inline OnOffState Potentiometer::getState() {
-	return state;
-}
+    logger.trace("setting level %f%s", this->currentLevel, currentState == OnOffState::OFF ? " while OFF" : "");
 
+    if (currentState == OnOffState::ON) {
+        onSetLevel(this->currentLevel); // trigger the actual level change
+    }
+}
 inline void Potentiometer::setState(OnOffState state) {
-	logger.debug("onSwitch%s", state == OnOffState::ON ? "On" : "Off");
+    if (state == currentState) {
+        logger.debug("already %s", currentState == OnOffState::ON ? "ON" : "OFF");
+        return;
+    }
 
-	this->state = state;
-
-	if (state == OnOffState::ON) {
-		onSwitchOn();
-	} else {
-		onSwitchOff();
-	}
+    if (state == OnOffState::ON) {
+        logger.debug("switching ON");
+        currentState = OnOffState::ON; // nested logic relies on current state being ON
+        onSwitchOn();
+    } else {
+        logger.debug("switching OFF");
+        onSwitchOff();
+        currentState = OnOffState::OFF; // changed after because nested logic relies on current state being ON
+    }
 }
 
 inline void Potentiometer::toggleState() {
-	setState(state == OnOffState::ON ? OnOffState::OFF : OnOffState::ON);
+    setState(currentState == OnOffState::ON ? OnOffState::OFF : OnOffState::ON);
 }
 
 inline void Potentiometer::onSwitchOff() {
-	onSetLevel(0.0);
+    setLevel(0.0);
 }
 
 inline void Potentiometer::onSwitchOn() {
-	onSetLevel(this->level);
-}
-
-inline Potentiometer::~Potentiometer() {
-
+    setLevel(this->currentLevel);
 }
 
 #endif

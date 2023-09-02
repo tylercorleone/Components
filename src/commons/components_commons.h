@@ -11,21 +11,6 @@
 #define _min(a,b) ((a)<(b)?(a):(b))
 #define _max(a,b) ((a)>(b)?(a):(b))
 
-#ifndef ENTER_ATOMIC_BLOCK
-#include <avr/interrupt.h>
-#define ENTER_ATOMIC_BLOCK uint8_t sreg = SREG; cli();
-#endif
-
-#ifndef EXIT_ATOMIC_BLOCK
-#include <avr/interrupt.h>
-#define EXIT_ATOMIC_BLOCK SREG = sreg;
-#endif
-
-#ifndef MILLIS_PROVIDER
-#include <Arduino.h>
-#define MILLIS_PROVIDER() millis()
-#endif
-
 #ifndef DEBUG_ENTERING_IDLE_STATE
 /* define DEBUG_ENTERING_IDLE_STATE if you want to be alerted
  * when entering an idle loop state (onIdle)
@@ -33,7 +18,9 @@
 #endif
 
 #include "utils/fixed_trigonometry.h"
-#include "utils/simplelogger/simplelogger.h"
+#include "utils/simplelogger/Logger.h"
 #include "Enums.h"
+#include "Identifiable.h"
+#include "Describable.h"
 
 #endif

@@ -9,50 +9,57 @@
  */
 class Battery : public Component {
 public:
-	virtual float getRemainingCharge() const = 0;
-	virtual ~Battery() {
-	}
+    Battery(const char *name = nullptr,
+            LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
+            Component(name, logLevel) {}
+
+    virtual float getRemainingCharge() const = 0;
+
+    virtual ~Battery() {}
 };
 
-class GenericBattery: public Battery {
+class GenericBattery : public Battery {
 public:
-	GenericBattery(float (*readRemainingChargeFunc)());
-	float getRemainingCharge() const override;
+    GenericBattery(float (*readRemainingChargeFunc)(),
+                   const char *name = nullptr,
+                   LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL)
+            : Battery(name, logLevel),
+              readRemainingCharge(readRemainingChargeFunc) {}
+
+    float getRemainingCharge() const override;
+
 protected:
-	float (*readRemainingCharge)(void);
+    float (*readRemainingCharge)(void);
 };
 
-class LinearCapacityBattery: public Battery {
+class LinearCapacityBattery : public Battery {
 public:
-	LinearCapacityBattery(float voltageEmpty, float voltageFull,
-			float (*readVoltageFunc)());
-	float getRemainingCharge() const override;
+    LinearCapacityBattery(float voltageEmpty, float voltageFull,
+                          float (*readVoltageFunc)());
+
+    float getRemainingCharge() const override;
+
 protected:
-	float voltageEmpty;
-	float voltageFull;
-	float (*readVoltage)(void);
+    float voltageEmpty;
+    float voltageFull;
+
+    float (*readVoltage)(void);
 };
-
-inline GenericBattery::GenericBattery(float (*readRemainingChargeFunc)()) :
-		readRemainingCharge(readRemainingChargeFunc) {
-
-}
 
 inline float GenericBattery::getRemainingCharge() const {
-	return readRemainingCharge();
+    return readRemainingCharge();
 }
 
 inline LinearCapacityBattery::LinearCapacityBattery(float voltageEmpty,
-		float voltageFull, float (*readVoltageFunc)()) :
-		voltageEmpty(voltageEmpty), voltageFull(voltageFull), readVoltage(
-				readVoltageFunc) {
+                                                    float voltageFull, float (*readVoltageFunc)()) :
+        voltageEmpty(voltageEmpty), voltageFull(voltageFull), readVoltage(
+        readVoltageFunc) {
 
 }
 
 inline float LinearCapacityBattery::getRemainingCharge() const {
-	float _charge = (readVoltage() - voltageEmpty)
-			/ (voltageFull - voltageEmpty);
-	return _constrain(_charge, 0.0f, 1.0f);
+    float _charge = (readVoltage() - voltageEmpty) / (voltageFull - voltageEmpty);
+    return _constrain(_charge, 0.0f, 1.0f);
 }
 
 #endif

@@ -1,17 +1,18 @@
-#ifndef DEVICEAWARE_H
-#define DEVICEAWARE_H
+#ifndef DEVICE_AWARE_H
+#define DEVICE_AWARE_H
 
-template<class D> class DeviceAware {
+template<typename D>
+class DeviceAware {
 public:
-	DeviceAware(D &device) :
-			device(device) {
-	}
+    DeviceAware(D &device) :
+            device(device) {}
 
-	D& Device() {
-		return device;
-	}
+    D &getDevice() {
+        return device;
+    }
+
 private:
-	D &device;
+    D &device;
 };
 
 #endif
