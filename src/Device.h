@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <Task.h>
-#include <type_traits>
 
 template<typename E>
 class Device : public Identifiable {
@@ -29,7 +28,7 @@ public:
 
     void receiveEvent(E *event);
 
-    virtual const char *getIdentifier() const {
+    virtual const char *getIdentifier() const override {
         return logger.getName();
     }
 
@@ -58,7 +57,7 @@ inline Device<E>::Device(State<E> &initialState,
 
 template<typename E>
 inline void Device<E>::initialize() {
-    logger.debug("initializing");
+    logger.info("initializing");
     onInitialize(); // customizable initial set up
     initialState.enter();
 }
@@ -68,9 +67,9 @@ inline void Device<E>::loop(uint16_t watchdogTimeOutFlag) {
     taskManager.Loop(watchdogTimeOutFlag);
 
     if (taskManager.IsIdle()) {
-#ifdef DEBUG_ENTERING_IDLE_STATE
-        logger.debug("entering idle");
-#endif
+        if (DEBUG_ENTERING_IDLE_STATE) {
+            logger.debug("entering idle");
+        }
         onIdle();
     }
 }

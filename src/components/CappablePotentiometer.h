@@ -5,8 +5,8 @@
 
 class CappablePotentiometer : public Potentiometer {
 public:
-    CappablePotentiometer(const char *name = nullptr,
-                          LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
+    CappablePotentiometer(const char *name = "cappablePot",
+                                   LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
             Potentiometer(name, logLevel) {}
 
     void setLevel(float level) override;
@@ -48,7 +48,7 @@ inline void CappablePotentiometer::setMaxValue(float value) {
 
     maxValue = newValue;
 
-    logger.debug("new max value %f", maxValue);
+    logger.debug("max level set to %f", maxValue);
 
     if (currentLevel > maxValue || (currentLevel < wantedLevel && currentLevel < maxValue)) {
 
@@ -70,7 +70,7 @@ inline void CappablePotentiometer::setMinValue(float value) {
 
     minValue = newValue;
 
-    logger.debug("min level updated to %f", minValue);
+    logger.debug("min level set to %f", minValue);
 
     if (currentLevel < minValue || (currentLevel > wantedLevel && currentLevel > minValue)) {
 

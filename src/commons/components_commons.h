@@ -12,9 +12,10 @@
 #define _max(a,b) ((a)>(b)?(a):(b))
 
 #ifndef DEBUG_ENTERING_IDLE_STATE
-/* define DEBUG_ENTERING_IDLE_STATE if you want to be alerted
+/* Set DEBUG_ENTERING_IDLE_STATE to true if you want to be alerted
  * when entering an idle loop state (onIdle)
  */
+#define DEBUG_ENTERING_IDLE_STATE false
 #endif
 
 #include "utils/fixed_trigonometry.h"

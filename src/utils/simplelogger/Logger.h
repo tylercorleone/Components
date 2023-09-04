@@ -6,39 +6,36 @@
 #endif
 
 /*
- * Simple Logger is a logger that can be configured at runtime
- * and preprocessor time. The latter is an important advantage
- * when program and data space is limited, for example in
- * embedded systems
+ * A logger that can be configured at runtime and preprocessor time.
+ * The latter is important when program and data space is limited.
  *
  * Supports: trace, debug, info, warning, error and off log levels
  *
- * In order to configure the logger at preprocessor time, set the
- * SIMPLE_LOGGER_LOG_LEVEL to the desired one.
+ * In order to configure the overall appender level, at preprocessor time, set the
+ * SIMPLE_LOGGER_APPENDER_LEVEL to the desired one.
  */
-#define OFF_LEVEL 6
-#define ERROR_LEVEL 5
-#define WARNING_LEVEL 4
-#define INFO_LEVEL 3
-#define DEBUG_LEVEL 2
-#define TRACE_LEVEL 1
+#define APPENDER_LEVEL_OFF 6
+#define APPENDER_LEVEL_ERROR 5
+#define APPENDER_LEVEL_WARNING 4
+#define APPENDER_LEVEL_INFO 3
+#define APPENDER_LEVEL_DEBUG 2
+#define APPENDER_LEVEL_TRACE 1
 
-#ifndef SIMPLE_LOGGER_LOG_LEVEL
-/*
- * The default minimum log level configurable at preprocessor time
- * Changing this value will condition the program and data size of
- * your executable e.g. if it contains "logger.trace("Hello world")
- * and SIMPLE_LOGGER_LOG_LEVEL is set to a level > TRACE_LEVEL
+#ifndef SIMPLE_LOGGER_APPENDER_LEVEL
+/* Changing this value will condition the program and data size of the executable.
+ * E.g. if the program contains logger.trace("Hello world")
+ * but the appender is set to a level > APPENDER_LEVEL_TRACE (DEBUG, INFO, OFF, etc.),
+ * the trace's method will be empty and the compiler will perform program and data space usage.
  */
-#define SIMPLE_LOGGER_LOG_LEVEL TRACE_LEVEL
+#define SIMPLE_LOGGER_APPENDER_LEVEL APPENDER_LEVEL_TRACE
 #endif
 
-#if SIMPLE_LOGGER_LOG_LEVEL < OFF_LEVEL
+#if SIMPLE_LOGGER_APPENDER_LEVEL < APPENDER_LEVEL_OFF
 /*
  * You can use this macro to check if log is enabled or not
  * e.g. to set up an appender Serial.begin(...) etc.
  */
-#define LOG_ENABLED
+#define SIMPLE_LOGGER_APPENDER_ENABLED
 #endif
 
 /*
@@ -50,8 +47,6 @@
 #define LOG_SUBSTRING_BUFFER_SIZE 50
 #endif
 
-#ifdef LOG_ENABLED
-
 #include "utils.h"
 
 enum class LogLevel {
@@ -60,7 +55,7 @@ enum class LogLevel {
 
 class Logger {
 public:
-    Logger(const char *name, LogLevel logLevel = LogLevel::TRACE);
+    Logger(const char *name, LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL);
 
     const char *getName() const;
 
@@ -111,31 +106,31 @@ inline void Logger::setLogLevel(LogLevel logLevel) {
 }
 
 inline void Logger::error(const char *fmt, ...) {
-#if SIMPLE_LOGGER_LOG_LEVEL <= ERROR_LEVEL
+#if SIMPLE_LOGGER_APPENDER_LEVEL <= APPENDER_LEVEL_ERROR
     LOG_AT_LEVEL(LogLevel::ERROR);
 #endif
 }
 
 inline void Logger::warn(const char *fmt, ...) {
-#if SIMPLE_LOGGER_LOG_LEVEL <= WARNING_LEVEL
+#if SIMPLE_LOGGER_APPENDER_LEVEL <= APPENDER_LEVEL_WARNING
     LOG_AT_LEVEL(LogLevel::WARNING);
 #endif
 }
 
 inline void Logger::info(const char *fmt, ...) {
-#if SIMPLE_LOGGER_LOG_LEVEL <= INFO_LEVEL
+#if SIMPLE_LOGGER_APPENDER_LEVEL <= APPENDER_LEVEL_INFO
     LOG_AT_LEVEL(LogLevel::INFO);
 #endif
 }
 
 inline void Logger::debug(const char *fmt, ...) {
-#if SIMPLE_LOGGER_LOG_LEVEL <= DEBUG_LEVEL
+#if SIMPLE_LOGGER_APPENDER_LEVEL <= APPENDER_LEVEL_DEBUG
     LOG_AT_LEVEL(LogLevel::DEBUG);
 #endif
 }
 
 inline void Logger::trace(const char *fmt, ...) {
-#if SIMPLE_LOGGER_LOG_LEVEL <= TRACE_LEVEL
+#if SIMPLE_LOGGER_APPENDER_LEVEL <= APPENDER_LEVEL_TRACE
     LOG_AT_LEVEL(LogLevel::TRACE);
 #endif
 }
@@ -174,7 +169,5 @@ inline const char *Logger::getLogLevelDescr(LogLevel level) {
             return "ERROR";
     }
 }
-
-#endif // LOG_ENABLED
 
 #endif // SIMPLE_LOGGER_H

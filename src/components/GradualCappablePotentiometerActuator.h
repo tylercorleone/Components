@@ -9,7 +9,7 @@ public:
     GradualLevelMaxValueSetter(uint32_t timeInterval,
                                TaskManager &taskManager,
                                CappablePotentiometer &cappablePotentiometer,
-                               const char *name = nullptr,
+                               const char *name = "gradLevelMaxValueSetter",
                                LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL);
 
 private:
@@ -45,7 +45,7 @@ public:
     GradualCappablePotentiometerActuator(uint32_t timeInterval,
                                          TaskManager &taskManager,
                                          CappablePotentiometer &cappablePotentiometer,
-                                         const char *name = nullptr,
+                                         const char *name = "gradCappablePotActuator",
                                          LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL);
 
     void setMaxValueGradually(float level, uint32_t duration);

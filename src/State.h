@@ -23,7 +23,7 @@ protected:
 public:
 
     bool enter(E *event = nullptr) {
-        debugActionBegin("entering", event);
+        logActionBeginInfo("entering", event);
         bool succeeded = onEntering(event);
         if (!succeeded) {
             warnActionFail("entering", event);
@@ -32,7 +32,7 @@ public:
     }
 
     bool exit(E *event = nullptr) {
-        debugActionBegin("exiting", event);
+        logActionBeginInfo("exiting", event);
         bool succeeded = onExiting(event);
         if (!succeeded) {
             warnActionFail("exiting", event);
@@ -41,7 +41,7 @@ public:
     }
 
     bool handleEvent(E *event = nullptr) {
-        debugActionBegin("handling", event);
+        logActionBeginInfo("handling", event);
         bool succeeded = onEventHandling(event);
         if (!succeeded) {
             warnActionFail("handling", event);
@@ -55,8 +55,8 @@ public:
 
 private:
 
-    void debugActionBegin(const char *action, E *event) {
-        logger.debug("%s (event: %s)", action, event != nullptr ? event->getDescription() : "null");
+    void logActionBeginInfo(const char *action, E *event) {
+        logger.info("%s (event: %s)", action, event != nullptr ? event->getDescription() : "null");
     }
 
     void warnActionFail(const char *action, E *event) {

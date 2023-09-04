@@ -1,13 +1,16 @@
-#ifndef GRADUALLEVELSETTER_H
-#define GRADUALLEVELSETTER_H
+#ifndef GRADUAL_LEVEL_SETTER_H
+#define GRADUAL_LEVEL_SETTER_H
 
 #include "Components.h"
 
+/**
+ * Can be programmed to set potentiometers' level, min value, max value etc.
+ */
 class GradualLevelSetter : public Component, protected Task {
 public:
     GradualLevelSetter(uint32_t timeInterval,
                        TaskManager &taskManager,
-                       const char *name = nullptr,
+                       const char *name = "gradLevelSetter",
                        LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
             Component(name, logLevel),
             Task(timeInterval),
@@ -31,11 +34,16 @@ private:
 };
 
 inline void GradualLevelSetter::setLevelGradually(float level, uint32_t duration) {
-    logger.debug("setting level %f in %u ms", level, duration);
 
     taskManager.StopTask(this);
 
-    stepsToGo = readLevel() == level ? 0 : duration / _timeInterval;
+    if (level == readLevel()) {
+        return;
+    }
+
+    logger.debug("setting level %f in %u ms", level, duration);
+
+    stepsToGo = duration / _timeInterval;
 
     if (stepsToGo) {
         targetLevel = level;

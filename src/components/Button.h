@@ -55,7 +55,7 @@ class Button : public DeviceAware<Device<ButtonEvent>>, public Component {
 
 public:
     Button(Device<ButtonEvent> &device,
-           const char *name = nullptr,
+           const char *name = "button",
            LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL);
 
     void setState(ButtonState state);
@@ -73,7 +73,7 @@ protected:
 
     void refreshHoldStatus(uint32_t now, bool isExitingFromHold = false);
 
-    volatile ButtonState state = ButtonState::RELEASED;
+    volatile ButtonState currentState = ButtonState::RELEASED;
     volatile uint32_t lastFallTimeMs;
     volatile uint32_t lastRiseTimeMs;
     volatile uint8_t clicksCount;
@@ -137,29 +137,29 @@ inline void Button::setState(ButtonState state) {
 }
 
 inline void Button::onButtonFall() {
-    if (state == ButtonState::PRESSED) {
-        logger.trace("%s filtered", "press");
+    if (currentState == ButtonState::PRESSED) {
+        logger.trace("%s filtered", "pressed");
         return;
     }
 
-    logger.trace("press");
+    logger.trace("pressed");
 
     lastFallTimeMs = millis();
-    state = ButtonState::PRESSED;
+    currentState = ButtonState::PRESSED;
     holdsCount = 0;
     haveHoldsToNotify = false;
 }
 
 inline void Button::onButtonRise() {
-    if (state == ButtonState::RELEASED) {
-        logger.trace("%s filtered", "release");
+    if (currentState == ButtonState::RELEASED) {
+        logger.trace("%s filtered", "released");
         return;
     }
 
-    logger.trace("release");
+    logger.trace("released");
 
     lastRiseTimeMs = millis();
-    state = ButtonState::RELEASED;
+    currentState = ButtonState::RELEASED;
 
     if (lastRiseTimeMs - lastFallTimeMs >= BUTTON_HOLD_BEGIN_THRESHOLD_MS) {
 
@@ -200,7 +200,7 @@ inline ButtonEvent Button::ackInteraction() {
 
     if (haveHoldsToNotify) {
         holdsToNotify = holdsCount;
-        if (state != ButtonState::PRESSED) {
+        if (currentState != ButtonState::PRESSED) {
             holdsCount = 0;
         }
         haveHoldsToNotify = false;
@@ -213,12 +213,12 @@ inline ButtonEvent Button::ackInteraction() {
  * Used to keep alive the user interaction monitor
  */
 inline bool Button::isUserInteracting() {
-    return state == ButtonState::PRESSED || haveClicksToNotify
+    return currentState == ButtonState::PRESSED || haveClicksToNotify
            || haveHoldsToNotify;
 }
 
 inline void Button::refreshHoldStatus(uint32_t millis, bool isExitingFromHold) {
-    if (state == ButtonState::RELEASED && !isExitingFromHold) {
+    if (currentState == ButtonState::RELEASED && !isExitingFromHold) {
         return;
     }
 

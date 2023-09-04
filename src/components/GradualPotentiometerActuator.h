@@ -13,7 +13,7 @@ public:
     GradualPotentiometerActuator(uint32_t timeInterval,
                                  TaskManager &taskManager,
                                  Potentiometer &potentiometer,
-                                 const char *name = nullptr,
+                                 const char *name = "gradPotActuator",
                                  LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
             GradualLevelSetter(timeInterval, taskManager, name, logLevel),
             potentiometer(potentiometer) {}

@@ -11,9 +11,8 @@ public:
     Logger logger;
 protected:
 
-    Component(const char *name,
-              LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
-            logger(Logger(name, logLevel)) {}
+    Component(const char *name, LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
+            logger(name, logLevel) {}
 };
 
 #endif

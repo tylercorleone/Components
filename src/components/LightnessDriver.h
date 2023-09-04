@@ -1,5 +1,5 @@
-#ifndef LIGHTNESS_DIMMER_H
-#define LIGHTNESS_DIMMER_H
+#ifndef LIGHTNESS_DRIVER_H
+#define LIGHTNESS_DRIVER_H
 
 #include "Potentiometer.h"
 
@@ -17,11 +17,11 @@ float hunterLabConversion(float);
 #define LIGHTNESS_TO_BRIGHTNESS_CONVERSION(lightness) cieLabConversion(lightness)
 #endif
 
-class LightnessDimmer : public CappablePotentiometer {
+class LightnessDriver : public CappablePotentiometer {
 public:
 
-    LightnessDimmer(Potentiometer &brightnessPotentiometer,
-                    const char *name = nullptr,
+    LightnessDriver(Potentiometer &brightnessPotentiometer,
+                    const char *name = "lightnessDriver",
                     LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
             CappablePotentiometer(name, logLevel),
             brightnessPotentiometer(brightnessPotentiometer) {}
@@ -41,25 +41,25 @@ protected:
     bool lightnessSimulationEnabled = true;
 };
 
-inline void LightnessDimmer::onSetLevel(float level) {
+inline void LightnessDriver::onSetLevel(float level) {
     float brightnessLevel = lightnessSimulationEnabled ? LIGHTNESS_TO_BRIGHTNESS_CONVERSION(level) : level;
     brightnessPotentiometer.setLevel(brightnessLevel);
 }
 
-inline bool LightnessDimmer::isLightnessSimulationEnabled() {
+inline bool LightnessDriver::isLightnessSimulationEnabled() {
     return lightnessSimulationEnabled;
 }
 
-inline void LightnessDimmer::isLightnessSimulationEnabled(bool isEnabled) {
+inline void LightnessDriver::isLightnessSimulationEnabled(bool isEnabled) {
     lightnessSimulationEnabled = isEnabled;
 }
 
-inline void LightnessDimmer::onSwitchOn() {
+inline void LightnessDriver::onSwitchOn() {
     Potentiometer::onSwitchOn();
     brightnessPotentiometer.setState(OnOffState::ON);
 }
 
-inline void LightnessDimmer::onSwitchOff() {
+inline void LightnessDriver::onSwitchOff() {
     Potentiometer::onSwitchOff(); // important to set lightness to 0
     brightnessPotentiometer.setState(OnOffState::OFF);
 }

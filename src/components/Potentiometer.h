@@ -3,9 +3,9 @@
 
 #include "Components.h"
 
-class Potentiometer : public Component {
+class Potentiometer : public Component { // TODO: make it constrained and make another one time-gradual?
 public:
-    inline Potentiometer(const char *name = nullptr,
+    inline Potentiometer(const char *name = "potentiometer",
                          LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL) :
             Component(name, logLevel) {
     }
