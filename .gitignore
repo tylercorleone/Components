@@ -1,5 +1,10 @@
+.cproject
+.gitignore
+.idea
+.project
+.settings/
+.travis.yml
 .pioenvs
 .piolibdeps
-.project
-.idea/
-cmake-build-debug/
+.pio
+**/lib/

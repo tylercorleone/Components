@@ -1,7 +1,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include "../commons/Describable.h"
+#include "commons/Describable.h"
 
 /**
  * This is the base Event's type definition

@@ -3,6 +3,8 @@
   "version": "0.1",
   "keywords": "arduino, avr, library, device, components, framework",
   "description": "An event-driven state machine and a set of founding components",
+  "frameworks": "arduino",
+  "platforms": "*",
   "repository":
   {
     "type": "git",
@@ -12,8 +14,7 @@
   [
     {
         "name": "Task",
-        "version": "https://github.com/tylercorleone/Task.git"
+        "version": "symlink:///Users/lupop/Documents/private/repositories/Task"
     }
   ]
 }
-

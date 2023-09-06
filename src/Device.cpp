@@ -1,59 +1,18 @@
-#ifndef DEVICE_H
-#define DEVICE_H
-
-#include "commons/components_commons.h"
-#include "State.h"
-
-#include <stdint.h>
-#include <stddef.h>
-#include <Task.h>
+#include "Device.h"
+#include "Components.h"
 
 template<typename E>
-class Device : public Identifiable {
-public:
-    Device(State<E> &initialState,
-           const char *name,
-           LogLevel logLevel = COMPONENTS_DEFAULT_LOG_LEVEL);
-
-    void initialize();
-
-    void loop(uint16_t watchdogTimeOutFlag = WDTO_500MS);
-
-    /**
-     * Enables components to schedule activities.
-     */
-    TaskManager &getTaskManager();
-
-    void enterState(State<E> &state, E *event = nullptr);
-
-    void receiveEvent(E *event);
-
-    virtual const char *getIdentifier() const override {
-        return logger.getName();
-    }
-
-    virtual ~Device() {}
-
-protected:
-    virtual void onInitialize() {};
-
-    virtual void onIdle() {};
-
-    virtual void enterInitialState(E *event);
-
-    State<E> &initialState;
-    State<E> *currentState;
-    TaskManager taskManager;
-    Logger logger;
-};
-
-template<typename E>
-inline Device<E>::Device(State<E> &initialState,
+inline Device<E>::Device(State <E> &initialState,
                          const char *name,
                          LogLevel logLevel) :
         initialState(initialState),
         currentState(&initialState),
         logger(Logger(name, logLevel)) {}
+
+template<typename E>
+inline const char *Device<E>::getIdentifier() const {
+    return logger.getName();
+}
 
 template<typename E>
 inline void Device<E>::initialize() {
@@ -80,7 +39,7 @@ inline TaskManager &Device<E>::getTaskManager() {
 }
 
 template<typename E>
-inline void Device<E>::enterState(State<E> &state, E *event) {
+inline void Device<E>::enterState(State <E> &state, E *event) {
     if (!currentState->exit(event)) {
         enterInitialState(event);
         return;
@@ -107,5 +66,3 @@ inline void Device<E>::enterInitialState(E *event) {
     initialState.enter(event);
     currentState = &initialState;
 }
-
-#endif
